@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{132f49d7-93aa-459a-957a-65fffb44a900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Painter">
+      <UniqueIdentifier>{c5b83a0a-8e12-4d2f-b34b-702054fef50a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Extensions">
+      <UniqueIdentifier>{761998af-32f7-40e8-9e59-d2b2eb128146}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Extensions\Color">
+      <UniqueIdentifier>{fcd02c2e-b7ee-4cc8-8bd3-1d006c0dcc15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Extensions\PixelCoordConverter">
+      <UniqueIdentifier>{7c7e15a7-4620-4d8b-814f-dbe75bffab81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Extensions\Point">
+      <UniqueIdentifier>{093bec31-f088-4fae-9f74-971d62ddc10a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Painter.cpp">
+      <Filter>Core\Painter</Filter>
+    </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Core\Extensions\Color</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelCoordConverter.cpp">
+      <Filter>Core\Extensions\PixelCoordConverter</Filter>
+    </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>Core\Extensions\Point</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Painter.h">
+      <Filter>Core\Painter</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Core\Extensions\Color</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelCoordConverter.h">
+      <Filter>Core\Extensions\PixelCoordConverter</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Core\Extensions\Point</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
