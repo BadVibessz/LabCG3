@@ -2,10 +2,8 @@
 #include <cmath>
 #include "Painter.h"
 
-
 static const int WINDOW_WIDTH = 600;
 static const int WINDOW_HEIGTH = 400;
-const char WINDOW_TITLE[] = "glut";
 const float M_PI = 3.14159265358979323846f;
 
 int g_windowWidth = WINDOW_WIDTH;
@@ -72,11 +70,7 @@ int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
 
-	//glutInitDisplayMode(GLUT_RGB);
-
-	//glutSetOption(GLUT_MULTISAMPLE, 8);
 	glutInitDisplayMode(GLUT_RGB | GLUT_MULTISAMPLE);
-
 
 	// window one
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGTH);

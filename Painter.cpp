@@ -1,8 +1,10 @@
 #include "Painter.h"
 
 using namespace std;
-void Painter::DrawLine(float x1, float y1, float x2, float y2)
+void Painter::DrawLine(float x1, float y1, float x2, float y2, Color color, float size)
 {
+	glColor3f(color.R, color.G, color.B);
+	glPointSize(size);
 
 	glBegin(GL_LINES);
 	glVertex2f(x1, y1);
@@ -10,30 +12,92 @@ void Painter::DrawLine(float x1, float y1, float x2, float y2)
 	glEnd();
 
 	glFlush();
-
 }
 
 void Painter::DrawAxes(float width, float height, Color color)
 {
+
+	// todo: fill triangle on the end of axes
+
+	FillTriangle(width, height / 2, width - 10,
+		height / 2 - 5, width - 10, height / 2 + 5, color);
+
+	FillTriangle(width / 2, 0, width / 2 - 5, 10, width / 2 + 5, 10, color);
+
+	// axes
+
 	glColor3f(color.R, color.G, color.B);
-	DrawLine(0, height / 2, width, height / 2);
-	DrawLine(width / 2, 0, width / 2, height);
+	DrawLine(0, height / 2, width, height / 2, color);
+	DrawLine(width / 2, 0, width / 2, height, color);
+
+	// scale
+
+	int x0 = PixelCoordConverter::MapXCoordToPixel(0);
+	int y0 = PixelCoordConverter::MapYCoordToPixel(0);
+
+	int size = 5;
+	int n = 20;
+
+	float left = PixelCoordConverter::xMin;
+	float right = PixelCoordConverter::xMax;
+
+	float xInc = (right - left) / n;
+
+	float i = left;
+	while (i <= right - xInc)
+	{
+		int x = PixelCoordConverter::MapXCoordToPixel(i);
+		DrawLine(x, y0 - size, x, y0 + size, color);
+
+		i += xInc;
+	}
+
+	float bottom = PixelCoordConverter::yMin;
+	float top = PixelCoordConverter::yMax;
+
+	float yInc = (top - bottom) / n;
+
+
+	i = bottom;
+	while (i <= top - yInc)
+	{
+		int y = PixelCoordConverter::MapYCoordToPixel(i);
+		DrawLine(x0 - size, y, x0 + size, y, color);
+		i += yInc;
+
+	}
 }
 
-void Painter::DrawFunction(float(*function)(float), float x1, float x2, float width, float height, Color color)
+void Painter::DrawFunction(float(*function)(float), float x1, float x2,
+	float width, float height, Color color)
 {
 	if (x1 >= x2) return;
 
 	int i = 0;
 	while (i < width)
 	{
-		float x = PixelCoordConverter::MapXPixelToCoord(i);
+
+		/* drawing using dots */
+		/*float x = PixelCoordConverter::MapXPixelToCoord(i);
 		float y = function(x);
 
 		DrawPoint(PixelCoordConverter::MapXCoordToPixel(x),
-			PixelCoordConverter::MapYCoordToPixel(y), 2, color);
+			PixelCoordConverter::MapYCoordToPixel(y), 2, color);*/
 
-		i++;
+			/* drawing using lines */
+		float x1 = PixelCoordConverter::MapXPixelToCoord(i);
+		float y1 = function(x1);
+
+		i += 5;
+		float x2 = PixelCoordConverter::MapXPixelToCoord(i);
+		float y2 = function(x2);
+
+		DrawLine(PixelCoordConverter::MapXCoordToPixel(x1),
+			PixelCoordConverter::MapYCoordToPixel(y1),
+			PixelCoordConverter::MapXCoordToPixel(x2),
+			PixelCoordConverter::MapYCoordToPixel(y2),
+			color);
+
 	}
 
 }
@@ -43,14 +107,6 @@ void Painter::DrawPoint(float x, float y, int size, Color color)
 	glPointSize(2);
 	glBegin(GL_POINTS);
 	glColor3f(color.R, color.G, color.B);
-	/*glVertex2f(PixelCoordConverter::MapXCoordToPixel(x),
-		PixelCoordConverter::MapYCoordToPixel(y));*/
-
-		/*auto x1 = PixelCoordConverter::MapXCoordToPixel(PixelCoordConverter::MapXPixelToCoord(x));
-		auto y1 = PixelCoordConverter::MapYCoordToPixel(PixelCoordConverter::MapYPixelToCoord(y));
-
-		glVertex2f(PixelCoordConverter::MapXCoordToPixel(PixelCoordConverter::MapXPixelToCoord(x)),
-			PixelCoordConverter::MapYCoordToPixel(PixelCoordConverter::MapYPixelToCoord(y)));*/
 	glVertex2f(x, y);
 	glEnd();
 
@@ -72,16 +128,16 @@ void Painter::DrawCircle(float x, float y, float radius, int n, Color color)
 void Painter::FillEllipse(float x, float y, float a, float b, Color color)
 {
 	int i;
-	int triangleAmount = 100; //# of triangles used to draw circle
+	int n = 100;
 
-	GLfloat twicePi = 2.0f * 3.1415926f;
+	GLfloat twoPi = 2.0f * 3.1415926f;
 	glColor3f(color.R, color.G, color.B);
 	glBegin(GL_TRIANGLE_FAN);
 	glVertex2f(x, y);
-	for (i = 0; i <= triangleAmount; i++) {
+	for (i = 0; i <= n; i++) {
 		glVertex2f(
-			x + ((a + 1) * cos(i * twicePi / triangleAmount)),
-			y + ((b - 1) * sin(i * twicePi / triangleAmount))
+			x + ((a + 1) * cos(i * twoPi / n)),
+			y + ((b - 1) * sin(i * twoPi / n))
 		);
 	}
 	glEnd();
@@ -111,7 +167,6 @@ void Painter::FillTriangle(float x1, float y1, float x2,
 	float y2, float x3, float y3, Color color)
 {
 	glColor3f(color.R, color.G, color.B);
-
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glBegin(GL_TRIANGLES);
 	glVertex3f(x1, y1, 0);
@@ -121,7 +176,7 @@ void Painter::FillTriangle(float x1, float y1, float x2,
 
 }
 
-void Painter::FillPolygon(int n, Point points[], Color color)
+void Painter::FillRectangle(Point p1, Point p2, Point p3, Point p4, Color color)
 {
 
 	glColor3f(color.R, color.G, color.B);
@@ -130,8 +185,10 @@ void Painter::FillPolygon(int n, Point points[], Color color)
 
 	glBegin(GL_POLYGON);
 
-	for (int i = 0; i < n; i++)
-		glVertex3f(points[i].x, points[i].y, 0.0);
+	glVertex3f(p1.x, p1.y, 0);
+	glVertex3f(p2.x, p2.y, 0);
+	glVertex3f(p3.x, p3.y, 0);
+	glVertex3f(p4.x, p4.y, 0);
 
 	glEnd();
 
@@ -145,12 +202,11 @@ void Painter::DrawEzhik(float x, float y)
 
 	Color baseColor = Color(201 / 255.f, 42 / 255.f, 114 / 255.f);
 	Color glassesColor = Color(83 / 255.f, 26 / 255.f, 131 / 255.f);
+	Color eyebrowColor = Color(116 / 255.f, 11 / 255.f, 59 / 255.f);
 
 	float glassRad = 30;
 	float eyeRad = 20;
 	float pupilRad = 5;
-
-	float triangleSide = 100;
 
 	// hair
 	FillTriangle(x - 100, y, x - 100, y - 100, x, y - 100, glassesColor);
@@ -175,14 +231,22 @@ void Painter::DrawEzhik(float x, float y)
 	FillEllipse(x + a / 3 - 10, y - b / 3, pupilRad, pupilRad, Color(0, 0, 0));
 
 	// eyebrows
-	auto points = new Point[4];
-	points[0] = Point(x - a / 3 - 30, y - b / 3 - 40);
-	points[1] = Point(x - a / 3 - 40, y - b / 3 - 50);
-	points[2] = Point(x + a / 6 + 40, y - b / 3 - 50);
-	points[3] = Point(x + a / 6 + 40, y - b / 3 - 40);
+	float dx = 20;
+	float dy = 32;
+	float h = 7;
 
-	// todo:
-	FillPolygon(4, points, Color(0, 0, 0));
+	auto p1 = Point(x - a / 3 - dx, y - b / 3 - dy);
+	auto p2 = Point(x - a / 3 + dx, y - b / 3 - dy);
+	auto p3 = Point(x - a / 3 + dx, y - b / 3 - dy - h);
+	auto p4 = Point(x - a / 3 - dx, y - b / 3 - dy - h);
+	FillRectangle(p1, p2, p3, p4, eyebrowColor);
+
+	 p1 = Point(x + a / 3 - dx, y - b / 3 - dy);
+	 p2 = Point(x + a / 3 + dx, y - b / 3 - dy);
+	 p3 = Point(x + a / 3 + dx, y - b / 3 - dy - h);
+	 p4 = Point(x + a / 3 - dx, y - b / 3 - dy - h);
+	 FillRectangle(p1, p2, p3, p4, eyebrowColor);
+
 
 	// legs
 	FillEllipse(x - a / 3, y + b, 15, 30, baseColor);
