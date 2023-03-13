@@ -14,58 +14,45 @@ void Painter::DrawLine(float x1, float y1, float x2, float y2, Color color, floa
 	glFlush();
 }
 
-void Painter::DrawAxes(float width, float height, Color color)
+void Painter::DrawAxes(float width, float height, Color color, int step)
 {
-
-	// todo: fill triangle on the end of axes
-
+	// arrows
 	FillTriangle(width, height / 2, width - 10,
 		height / 2 - 5, width - 10, height / 2 + 5, color);
 
 	FillTriangle(width / 2, 0, width / 2 - 5, 10, width / 2 + 5, 10, color);
 
 	// axes
-
 	glColor3f(color.R, color.G, color.B);
+	glLineWidth(1);
 	DrawLine(0, height / 2, width, height / 2, color);
 	DrawLine(width / 2, 0, width / 2, height, color);
 
-	// scale
-
-	int x0 = PixelCoordConverter::MapXCoordToPixel(0);
-	int y0 = PixelCoordConverter::MapYCoordToPixel(0);
-
+	float x0 = width / 2;
+	float y0 = height / 2;
+	
 	int size = 5;
-	int n = 20;
 
-	float left = PixelCoordConverter::xMin;
-	float right = PixelCoordConverter::xMax;
+	int nx = width / step;
+	int ny = height / step;
 
-	float xInc = (right - left) / n;
-
-	float i = left;
-	while (i <= right - xInc)
+	// x axis
+	for (int i = 1; i < nx; i++)
 	{
-		int x = PixelCoordConverter::MapXCoordToPixel(i);
-		DrawLine(x, y0 - size, x, y0 + size, color);
-
-		i += xInc;
+		int dx = i * step;
+		DrawLine(x0 + dx, y0 + size, x0 + dx, y0 - size, color);
+		DrawLine(x0 - dx , y0 + size, x0 - dx, y0 - size, color);
 	}
 
-	float bottom = PixelCoordConverter::yMin;
-	float top = PixelCoordConverter::yMax;
-
-	float yInc = (top - bottom) / n;
-
-
-	i = bottom;
-	while (i <= top - yInc)
+	// y axis
+	for (int i = 1; i < ny; i++)
 	{
-		int y = PixelCoordConverter::MapYCoordToPixel(i);
-		DrawLine(x0 - size, y, x0 + size, y, color);
-		i += yInc;
-
+		int dy = i * step;
+		DrawLine( x0 + size, y0 + dy, x0 - size, y0 + dy, color);
+		DrawLine( x0 + size, y0 - dy, x0 - size, y0 - dy, color);
 	}
+
+
 }
 
 void Painter::DrawFunction(float(*function)(float), float x1, float x2,
@@ -73,32 +60,22 @@ void Painter::DrawFunction(float(*function)(float), float x1, float x2,
 {
 	if (x1 >= x2) return;
 
+	glColor3f(color.R, color.G, color.B);
+	glLineWidth(2);
+	glBegin(GL_LINE_STRIP);
+
 	int i = 0;
 	while (i < width)
 	{
-
-		/* drawing using dots */
-		/*float x = PixelCoordConverter::MapXPixelToCoord(i);
+		float x = PixelCoordConverter::MapXPixelToCoord(i);
 		float y = function(x);
 
-		DrawPoint(PixelCoordConverter::MapXCoordToPixel(x),
-			PixelCoordConverter::MapYCoordToPixel(y), 2, color);*/
-
-			/* drawing using lines */
-		float x1 = PixelCoordConverter::MapXPixelToCoord(i);
-		float y1 = function(x1);
+		glVertex2f(PixelCoordConverter::MapXCoordToPixel(x),
+			PixelCoordConverter::MapYCoordToPixel(y));
 
 		i += 5;
-		float x2 = PixelCoordConverter::MapXPixelToCoord(i);
-		float y2 = function(x2);
-
-		DrawLine(PixelCoordConverter::MapXCoordToPixel(x1),
-			PixelCoordConverter::MapYCoordToPixel(y1),
-			PixelCoordConverter::MapXCoordToPixel(x2),
-			PixelCoordConverter::MapYCoordToPixel(y2),
-			color);
-
 	}
+	glEnd();
 
 }
 
@@ -241,11 +218,11 @@ void Painter::DrawEzhik(float x, float y)
 	auto p4 = Point(x - a / 3 - dx, y - b / 3 - dy - h);
 	FillRectangle(p1, p2, p3, p4, eyebrowColor);
 
-	 p1 = Point(x + a / 3 - dx, y - b / 3 - dy);
-	 p2 = Point(x + a / 3 + dx, y - b / 3 - dy);
-	 p3 = Point(x + a / 3 + dx, y - b / 3 - dy - h);
-	 p4 = Point(x + a / 3 - dx, y - b / 3 - dy - h);
-	 FillRectangle(p1, p2, p3, p4, eyebrowColor);
+	p1 = Point(x + a / 3 - dx, y - b / 3 - dy);
+	p2 = Point(x + a / 3 + dx, y - b / 3 - dy);
+	p3 = Point(x + a / 3 + dx, y - b / 3 - dy - h);
+	p4 = Point(x + a / 3 - dx, y - b / 3 - dy - h);
+	FillRectangle(p1, p2, p3, p4, eyebrowColor);
 
 
 	// legs

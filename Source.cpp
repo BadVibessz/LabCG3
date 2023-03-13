@@ -54,23 +54,84 @@ void OnDrawSceneFunctionWindow()
 	auto function = [](float x) { return 2 * x * x - 3 * x - 8; };
 	Painter::DrawFunction(function, -2, 3,
 		g_windowWidth, g_windowHeight, Color(218 / 255.f, 165 / 255.f, 32 / 255.f));
-	
+
 	glFlush();
 
 }
+
+
+
+// ezhik position
+float x = g_windowWidth / 2;
+float y = g_windowHeight / 2;
+
+// ezhik rectangle
+float top = y - 175;
+float bottom = y + 115;
+float left = x - 100;
+float right = x + 100;
+
+float dx = 0, dy = 0;
+
+bool isDragging = false;
+
+void RefreshEzhikRectangle()
+{
+	top = y - 175;
+	bottom = y + 115;
+	left = x - 100;
+	right = x + 100;
+}
+
 
 void OnDrawSceneEzhikWindow()
 {
-	Painter::DrawEzhik(g_windowWidth / 2, g_windowHeight / 2);
-	glFlush();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Painter::DrawEzhik(x, y);
+	glutSwapBuffers();
+	RefreshEzhikRectangle();
 }
 
+void OnMouseMove(int mouseX, int mouseY)
+{
+	if (isDragging)
+	{
+		x = mouseX - dx;
+		y = mouseY - dy;
+
+		glutPostRedisplay();
+	}
+
+}
+
+void OnMouseClick(int button, int state, int mouseX, int mouseY)
+{
+
+	if (state == GLUT_DOWN)
+	{
+		switch (button)
+		{
+		case GLUT_LEFT_BUTTON:
+
+			if (mouseX > left && mouseX < right && mouseY > top && mouseY < bottom)
+			{
+				isDragging = true;
+
+				dx = mouseX - x;
+				dy = mouseY - y;
+			}
+		}
+	}
+	else
+		isDragging = false;
+
+}
 
 int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
 
-	glutInitDisplayMode(GLUT_RGB | GLUT_MULTISAMPLE);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_MULTISAMPLE);
 
 	// window one
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGTH);
@@ -78,11 +139,16 @@ int main(int argc, char* argv[])
 	glutReshapeFunc(&OnResizeWindow);
 	glutDisplayFunc(&OnDrawSceneFunctionWindow);
 
+
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_MULTISAMPLE);
+
 	// window two
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGTH);
 	glutCreateWindow("Ezhik");
 	glutReshapeFunc(&OnResizeWindow);
 	glutDisplayFunc(&OnDrawSceneEzhikWindow);
+	glutMouseFunc(&OnMouseClick);
+	glutMotionFunc(&OnMouseMove);
 
 	glutMainLoop();
 
