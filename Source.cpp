@@ -3,7 +3,7 @@
 #include "Painter.h"
 
 static const int WINDOW_WIDTH = 600;
-static const int WINDOW_HEIGTH = 400;
+static const int WINDOW_HEIGTH = 600;
 const float M_PI = 3.14159265358979323846f;
 
 int g_windowWidth = WINDOW_WIDTH;
@@ -14,35 +14,61 @@ using namespace std;
 
 void OnResizeWindow(int width, int height)
 {
-	g_windowWidth = width;
-	g_windowHeight = height;
+	//float wDiffCoeff = (float)width / g_windowWidth;
+	//float hDiffCoeff = (float)height / g_windowHeight;
+
+
+	//g_windowWidth = width;
+	//g_windowHeight = height;
+
+	//PixelCoordConverter::width = g_windowWidth;
+	//PixelCoordConverter::height = g_windowHeight;
+
+	//glViewport(0, 0, width, height);
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+
+	//float aspectRatio = (float)width / height;
+	////gluPerspective(45, aspectRatio, 0,100);
+	////glOrtho(-aspectRatio, (float)width - aspectRatio, (float)height - aspectRatio, 0, -1, 1);
+
+	////glOrtho(-aspectRatio, aspectRatio, -1000, 1000, -1.0, 1.0);
+
+	//glOrtho(0, width, height, 0, -1, 1);
+
+
+	///*if (width > height)
+	//	glOrtho(-aspectRatio, aspectRatio, 0, 0, -1.0, 1.0);
+	//else
+	//	glOrtho(0,0, -aspectRatio, aspectRatio, -1.0, 1.0);*/
+
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
 
 	PixelCoordConverter::width = g_windowWidth;
 	PixelCoordConverter::height = g_windowHeight;
 
-	/*
-	«адаем положение и размеры видового порта (порта просмотра) в буфере кадра
-	¬ывод примитивов не будет осуществл€тьс€ за его пределы
-	*/
-	glViewport(0, 0, width, height);
+	float oldRatio = (float)g_windowWidth / (float)g_windowHeight;
+	float newRatio = (float)width / (float)height;
 
-	// ƒелаем текущей матрицей OpenGL матрицу проецировани€
+	float wDiffCoeff = (float)width / (float)g_windowWidth;
+	float hDiffCoeff = (float)height / (float)g_windowHeight;
+
+	if (newRatio > oldRatio)
+		wDiffCoeff = hDiffCoeff;
+	else hDiffCoeff = wDiffCoeff;
+
+	float xOffset = (width - g_windowWidth * wDiffCoeff) / 2;
+	float yOffset = (height - g_windowHeight * hDiffCoeff) / 2;
+
+	glViewport(xOffset, yOffset, g_windowWidth * wDiffCoeff, g_windowHeight * hDiffCoeff);
 	glMatrixMode(GL_PROJECTION);
-
-	// «агружаем в нее единичную матрицу
 	glLoadIdentity();
 
-	/*
-	» умножаем ее на матрицу ортографического проецировани€ такую,
-	что левому верхнему углу просмотра будет соответствовать
-	точка (0, 0), правому нижнему - (width, height),
-	а сцена будет включать в себ€ объект, расположенные по глубине в диапазоне
-	от -1 (сзади) до +1 (спереди)
-	*/
-	glOrtho(0, width, height, 0, -1, 1);
+	glOrtho(0, g_windowWidth / oldRatio, g_windowHeight / oldRatio, 0, -1, 1.0);
 
-	// ƒелаем текущей матрицей матрицу моделировани€-вида
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 
@@ -101,7 +127,6 @@ void OnMouseMove(int mouseX, int mouseY)
 
 		glutPostRedisplay();
 	}
-
 }
 
 void OnMouseClick(int button, int state, int mouseX, int mouseY)

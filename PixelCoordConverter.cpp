@@ -1,7 +1,7 @@
 #include "PixelCoordConverter.h"
 
-float PixelCoordConverter::xMin = -5.f;
-float PixelCoordConverter::xMax = 5.f;
+float PixelCoordConverter::xMin = -10.f;
+float PixelCoordConverter::xMax = 10.f;
 
 float PixelCoordConverter::yMin = -10.f;
 float PixelCoordConverter::yMax = 10.f;

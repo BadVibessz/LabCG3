@@ -1,10 +1,9 @@
 #include "Painter.h"
 
 using namespace std;
-void Painter::DrawLine(float x1, float y1, float x2, float y2, Color color, float size)
+void Painter::DrawLine(float x1, float y1, float x2, float y2, Color color)
 {
 	glColor3f(color.R, color.G, color.B);
-	glPointSize(size);
 
 	glBegin(GL_LINES);
 	glVertex2f(x1, y1);
@@ -28,37 +27,75 @@ void Painter::DrawAxes(float width, float height, Color color, int step)
 	DrawLine(0, height / 2, width, height / 2, color);
 	DrawLine(width / 2, 0, width / 2, height, color);
 
-	float x0 = width / 2;
-	float y0 = height / 2;
-	
+	//float x0 = width / 2;
+	//float y0 = height / 2;
+	//
+	//int size = 5;
+
+	//int nx = width / step;
+	//int ny = height / step;
+
+	//// x axis
+	//for (int i = 1; i < nx; i++)
+	//{
+	//	int dx = i * step;
+	//	DrawLine(x0 + dx, y0 + size, x0 + dx, y0 - size, color);
+	//	DrawLine(x0 - dx , y0 + size, x0 - dx, y0 - size, color);
+	//}
+
+	//// y axis
+	//for (int i = 1; i < ny; i++)
+	//{
+	//	int dy = i * step;
+	//	DrawLine( x0 + size, y0 + dy, x0 - size, y0 + dy, color);
+	//	DrawLine( x0 + size, y0 - dy, x0 - size, y0 - dy, color);
+	//}
+
+
+	// scale
+
+	int x0 = PixelCoordConverter::MapXCoordToPixel(0);
+	int y0 = PixelCoordConverter::MapYCoordToPixel(0);
+
 	int size = 5;
+	int n = 20;
 
-	int nx = width / step;
-	int ny = height / step;
+	float left = PixelCoordConverter::xMin;
+	float right = PixelCoordConverter::xMax;
 
-	// x axis
-	for (int i = 1; i < nx; i++)
+	float xInc = (right - left) / n;
+
+	float i = left;
+	while (i <= right - xInc)
 	{
-		int dx = i * step;
-		DrawLine(x0 + dx, y0 + size, x0 + dx, y0 - size, color);
-		DrawLine(x0 - dx , y0 + size, x0 - dx, y0 - size, color);
+		int x = PixelCoordConverter::MapXCoordToPixel(i);
+		DrawLine(x, y0 - size, x, y0 + size, color);
+
+		i += xInc;
 	}
 
-	// y axis
-	for (int i = 1; i < ny; i++)
+	float bottom = PixelCoordConverter::yMin;
+	float top = PixelCoordConverter::yMax;
+
+	float yInc = (top - bottom) / n;
+
+	i = bottom;
+	while (i <= top - yInc)
 	{
-		int dy = i * step;
-		DrawLine( x0 + size, y0 + dy, x0 - size, y0 + dy, color);
-		DrawLine( x0 + size, y0 - dy, x0 - size, y0 - dy, color);
+		int y = PixelCoordConverter::MapYCoordToPixel(i);
+		DrawLine(x0 - size, y, x0 + size, y, color);
+		i += yInc;
+
 	}
-
-
 }
 
-void Painter::DrawFunction(float(*function)(float), float x1, float x2,
+void Painter::DrawFunction(std::function<float(float)> func, float x1, float x2,
 	float width, float height, Color color)
 {
 	if (x1 >= x2) return;
+
+	/*PixelCoordConverter::xMin = x1;
+	PixelCoordConverter::xMax = x2;*/
 
 	glColor3f(color.R, color.G, color.B);
 	glLineWidth(2);
@@ -68,7 +105,7 @@ void Painter::DrawFunction(float(*function)(float), float x1, float x2,
 	while (i < width)
 	{
 		float x = PixelCoordConverter::MapXPixelToCoord(i);
-		float y = function(x);
+		float y = func(x);
 
 		glVertex2f(PixelCoordConverter::MapXCoordToPixel(x),
 			PixelCoordConverter::MapYCoordToPixel(y));
